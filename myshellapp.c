@@ -20,11 +20,12 @@
 #define MY_PROMPT "centos_shell> "
 
 int parseCommand(const char *cmdline, char *listOfArgs[]);
-void buildCommandHistory(char *command);
+void buildCommandHistory(char command[]);
 void printCommandHistory();
 
 struct COMMAND_HISTORY{
-    char *command;
+    int index;
+    char command[MAXLINE];
     struct COMMAND_HISTORY *next;
 };
 
@@ -39,7 +40,7 @@ int main(int argc, char *argv[]){
     parentPid = getpid();
     printf("The parent process pid is: %d\n", parentPid);
 
-    //Start out with an history list for the new shell
+    //Start out with an empty history list for the new shell
     headListNode = (struct COMMAND_HISTORY*)malloc(sizeof(struct COMMAND_HISTORY));
     headListNode->next = NULL;
 
@@ -89,12 +90,12 @@ int main(int argc, char *argv[]){
         else if (childPid == 0)
         {
             //Have the child process execute the program
-            exeCmdReturn = execvp(cmdList[0], cmdList);
-            if(exeCmdReturn == -1){
-                returnErrorCode = errno;
-                printf("Failed to execute the program. Return code: %d\n", returnErrorCode);
-                perror("ERROR");
-                exit(1);
+            if(strcmp(cmdList[0], "history") != 0){
+                exeCmdReturn = execvp(cmdList[0], cmdList);
+                if(exeCmdReturn == -1){
+                    perror("ERROR");
+                    exit(1);
+                }
             }
         }
         else {
@@ -145,26 +146,21 @@ int parsecmd(const char *cmdline, char *arglist[])
   return argc;
 }
 
-void buildCommandHistory(char *command){
+void buildCommandHistory(char command[]){
     if(counter > HISTSIZE){
         printf("Maximum history size (%d) has been reached.", HISTSIZE);
         return;
     }
 
-    char bufferCmd[MAXLINE];
-    strncpy(bufferCmd, command, strlen(command)+1);
-
-    struct COMMAND_HISTORY *commandNode;
-    commandNode = (struct COMMAND_HISTORY*)malloc(sizeof(struct COMMAND_HISTORY));
-    commandNode->command = bufferCmd;
+    struct COMMAND_HISTORY *commandNode = (struct COMMAND_HISTORY*)malloc(sizeof(struct COMMAND_HISTORY));
+    strncpy(commandNode->command, command, strlen(command));
     commandNode->next = headListNode;
     headListNode = commandNode;
     counter++;
 }
 
 void printCommandHistory(){
-    struct COMMAND_HISTORY *currentCommand;
-    currentCommand = (struct COMMAND_HISTORY*)malloc(sizeof(struct COMMAND_HISTORY));
+    struct COMMAND_HISTORY *currentCommand = (struct COMMAND_HISTORY*)malloc(sizeof(struct COMMAND_HISTORY));
     currentCommand = headListNode;
 
     while(currentCommand != NULL){
