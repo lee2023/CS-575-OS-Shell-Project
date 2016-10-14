@@ -1,5 +1,3 @@
-Developer: Rosemary Espinal
-
 Build/Test/Run Environment: 
  - CentOS 7 Virtual Box VM running on MacOS
 
