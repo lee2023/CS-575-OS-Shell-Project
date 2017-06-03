@@ -1,5 +1,5 @@
 /* 
-* Developed by: Rosemary Espinal
+* Developed by: Leo Espinal
 * Date: 10/1/2016
 * Course: CS 575 Operating Systems
 * Programming Assignment 1: Shell
